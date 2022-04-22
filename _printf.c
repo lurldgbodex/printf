@@ -9,10 +9,11 @@
  */
 int _printf(const char *format, ...)
 {
+	int (*pfunc)(va_list, flags_t *);
 	va_list ap;
 	const char *p;
-	char *sval;
-	char cval;
+	flags_t flags = {0, 0, 0};
+
 	register int count = 0;
 
 	va_start(ap, format);
@@ -23,29 +24,23 @@ int _printf(const char *format, ...)
 
 	for (p = format; *p; p++)
 	{
-		if (*p != '%')
+		if (*p == '%')
 		{
-			count += _putchar (*p);
-			continue;
+			p++;
+			if (*p == '%');
+			{
+				count += _putchar (*p);
+				continue;
+			}
+			while (get_flag(*p, &flags))
+				p++;
+			pfunc = get_print(*p);
+			count += (pfunc)
+				? pfunc(ap, &flags)
+				: _printf("%%%c", *p);
 		}
-		switch (*++p)
-		{
-			case 'c':
-				cval = (char)va_arg(ap, int);
-				_putchar('c'); 
-				break;
-			case 's':
-				for (sval = va_arg(ap, char *); *sval; sval++)
-					count += _putchar(*sval);
-				break;
-			case '%':
-				_putchar('%');
-				break;
-			default:
-				_putchar(*p);
-				break;
-		}
-		count += _putchar(*p);
+		else
+			count += _putchar(*p);
 	}
 	_putchar(-1);
 	va_end(ap);
