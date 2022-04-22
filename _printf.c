@@ -1,4 +1,5 @@
 #include "main.h"
+#include <string.h>
 
 /**
  * _printf - produces output according to a format
@@ -9,7 +10,8 @@
 int _printf(const char *format, ...)
 {
 	va_list ap;
-	char *p, *sval;
+	const char *p;
+	char *sval;
 	char cval;
 	register int count = 0;
 
@@ -17,7 +19,7 @@ int _printf(const char *format, ...)
 	if (!format || (format[0] == '%' && !format[1]))
 		return (-1);
 	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1)
+		return (-1);
 
 	for (p = format; *p; p++)
 	{
@@ -29,12 +31,12 @@ int _printf(const char *format, ...)
 		switch (*++p)
 		{
 			case 'c':
-				cval = va_arg(ap, char);
-				_printf("%c", cval);
+				cval = (char)va_arg(ap, int);
+				_putchar('c'); 
 				break;
 			case 's':
 				for (sval = va_arg(ap, char *); *sval; sval++)
-					_putchar(*sval);
+					count += _putchar(*sval);
 				break;
 			case '%':
 				_putchar('%');
