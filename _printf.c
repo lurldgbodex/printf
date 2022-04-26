@@ -1,5 +1,4 @@
 #include "main.h"
-#include <string.h>
 
 /**
  * _printf - produces output according to a format
@@ -9,40 +8,44 @@
  */
 int _printf(const char *format, ...)
 {
-	int (*pfunc)(va_list, flags_t *);
+	int (*get_ptr)(va_list, int);
 	va_list ap;
-	const char *p;
-	flags_t flags = {0, 0, 0};
-
-	register int count = 0;
+	int i, len;
 
 	va_start(ap, format);
-	if (!format || (format[0] == '%' && !format[1]))
+	if (!format)
 		return (-1);
-	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1);
+	i = 0, len = 0;
 
-	for (p = format; *p; p++)
+	while (format && format[i])
 	{
-		if (*p == '%')
+		if (format[i] == '%')
 		{
-			p++;
-			if (*p == '%');
+			i++;
+			if (format[i] == '%')
 			{
-				count += _putchar (*p);
+				len += _putchar(format[i]);
+				i++;
 				continue;
 			}
-			while (get_flag(*p, &flags))
-				p++;
-			pfunc = get_print(*p);
-			count += (pfunc)
-				? pfunc(ap, &flags)
-				: _printf("%%%c", *p);
+			if (format[i] == '\0')
+				return (-1);
+			get_ptr = get_print_func(format[i]);
+			if (get_ptr != NULL)
+				len = get_ptr(ap, len);
+			else
+			{
+				len += _putchar(format[i - 1]);
+				len += _putchar(format[i]);
+			}
+			i++;
 		}
 		else
-			count += _putchar(*p);
+		{
+			len += _putchar(format[i]);
+			i++;
+		}
 	}
-	_putchar(-1);
 	va_end(ap);
-	return (count);
+	return (len);
 }
