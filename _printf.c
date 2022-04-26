@@ -1,51 +1,36 @@
 #include "main.h"
 
 /**
- * _printf - produces output according to a format
- * @format: input
- *
- * Return: number of characters printed excluding the null byte used
+ * _printf - print a formatted output 
+ * @format: string containing all the desired characters
+ * Return: count of the characters printed
  */
 int _printf(const char *format, ...)
 {
-	int (*get_ptr)(va_list, int);
-	va_list ap;
-	int i, len;
+	int printed_chars;
+	conver_t f_list[] = {
+		{"c", print_char},
+		{"s", print_string},
+		{"%", print_percent},
+		{"d", print_integer},
+		{"i", print_integer},
+		{"b", print_binary},
+		{"r", print_reversed},
+		{"R", rot13},
+		{"u", unsigned_integer},
+		{"o", print_octal},
+		{"x", print_hex},
+		{"X", print_heX},
+		{NULL, NULL}
+	};
+	va_list arg_list;
 
-	va_start(ap, format);
-	if (!format)
+	if (format == NULL)
 		return (-1);
-	i = 0, len = 0;
 
-	while (format && format[i])
-	{
-		if (format[i] == '%')
-		{
-			i++;
-			if (format[i] == '%')
-			{
-				len += _putchar(format[i]);
-				i++;
-				continue;
-			}
-			if (format[i] == '\0')
-				return (-1);
-			get_ptr = get_print_func(format[i]);
-			if (get_ptr != NULL)
-				len = get_ptr(ap, len);
-			else
-			{
-				len += _putchar(format[i - 1]);
-				len += _putchar(format[i]);
-			}
-			i++;
-		}
-		else
-		{
-			len += _putchar(format[i]);
-			i++;
-		}
-	}
-	va_end(ap);
-	return (len);
+	va_start(arg_list, format);
+	/*Calling parser function*/
+	printed_chars = parser(format, f_list, arg_list);
+	va_end(arg_list);
+	return (printed_chars);
 }
